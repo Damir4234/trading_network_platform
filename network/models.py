@@ -9,18 +9,31 @@ class NetworkNode(models.Model):
         (2, 'Индивидуальный предприниматель'),
     ]
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
     contact_email = models.EmailField()
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
     house_number = models.CharField(max_length=10)
-    products = models.TextField()  # Simplified for this example
-    supplier = models.ForeignKey(
-        'self', null=True, blank=True, on_delete=models.SET_NULL)
-    debt = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    products = models.CharField(max_length=200)
+    debt = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    level = models.IntegerField(choices=LEVEL_CHOICES)
+    level = models.IntegerField(choices=LEVEL_CHOICES, editable=True)
+    supplier = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.SET_NULL, related_name='supplied_nodes')
+    network = models.CharField(max_length=100, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.supplier:
+            # Уровень текущего узла на один больше уровня поставщика
+            self.level = self.supplier.level + 1
+            self.network = self.supplier.network  # Наследование сети от поставщика
+        else:
+            self.level = 0  # Начальный уровень для узлов без поставщика
+            if not self.network:
+                self.network = self.name  # Назначаем имя узла как имя сети, если сеть не указана
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

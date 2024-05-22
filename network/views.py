@@ -1,7 +1,12 @@
+from .serializers import NetworkNodeDetailSerializer, NetworkSerializer
+from .models import NetworkNode
 from rest_framework.permissions import BasePermission
 from rest_framework import viewsets
 from network.models import NetworkNode
-from network.serializers import NetworkNodeSerializer
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class IsActiveEmployee(BasePermission):
@@ -11,11 +16,17 @@ class IsActiveEmployee(BasePermission):
 
 class NetworkNodeViewSet(viewsets.ModelViewSet):
     queryset = NetworkNode.objects.all()
-    serializer_class = NetworkNodeSerializer
-    permission_classes = [IsActiveEmployee]
+    serializer_class = NetworkNodeDetailSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        country = self.request.query_params.get('country')
-        if country:
-            return self.queryset.filter(country=country)
+        network = self.request.query_params.get('network')
+        if network:
+            return self.queryset.filter(network=network)
         return self.queryset
+
+    @action(detail=False, methods=['get'])
+    def networks(self, request):
+        networks = NetworkNode.objects.filter(level=0)
+        serializer = NetworkSerializer(networks, many=True)
+        return Response(serializer.data)
