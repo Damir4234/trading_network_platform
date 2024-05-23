@@ -9,15 +9,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
-class IsActiveEmployee(BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and hasattr(request.user, 'activeemployee') and request.user.activeemployee.is_active
+# class IsActiveEmployee(BasePermission):
+#     def has_permission(self, request, view):
+#         return request.user.is_authenticated and hasattr(request.user, 'activeemployee') and request.user.activeemployee.is_active
 
 
 class NetworkNodeViewSet(viewsets.ModelViewSet):
     queryset = NetworkNode.objects.all()
     serializer_class = NetworkNodeDetailSerializer
-    permission_classes = [IsAuthenticated, IsActiveEmployee]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['country']
 

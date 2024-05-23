@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import NetworkNode
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class NetworkNodeDetailSerializer(serializers.ModelSerializer):
@@ -33,3 +36,17 @@ class NetworkSerializer(serializers.ModelSerializer):
     def get_nodes(self, obj):
         nodes = NetworkNode.objects.filter(supplier=obj)
         return NetworkNodeDetailSerializer(nodes, many=True).data
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = authenticate(
+            username=attrs[self.username_field], password=attrs['password'])
+        if user and not user.is_active:
+            raise serializers.ValidationError("User is not active.")
+        return data
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
