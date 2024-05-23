@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import NetworkNode, ActiveEmployee
+from .models import NetworkNode
 
 
 class NetworkNodeAdmin(admin.ModelAdmin):
@@ -13,4 +13,3 @@ class NetworkNodeAdmin(admin.ModelAdmin):
 
 
 admin.site.register(NetworkNode, NetworkNodeAdmin)
-admin.site.register(ActiveEmployee)
