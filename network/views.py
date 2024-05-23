@@ -3,7 +3,7 @@ from .models import NetworkNode
 from rest_framework.permissions import BasePermission
 from rest_framework import viewsets, filters
 from network.models import NetworkNode
-
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -18,8 +18,8 @@ class NetworkNodeViewSet(viewsets.ModelViewSet):
     queryset = NetworkNode.objects.all()
     serializer_class = NetworkNodeDetailSerializer
     permission_classes = [IsAuthenticated, IsActiveEmployee]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['country']
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['country']
 
     def get_queryset(self):
         network = self.request.query_params.get('network')
